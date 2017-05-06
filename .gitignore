@@ -7,3 +7,5 @@ __pycache__/
 dog_gr.jpg
 private
 scripts/
+test/images/
+test/images.txt

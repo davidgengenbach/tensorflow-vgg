@@ -11,6 +11,7 @@ import datetime
 import skimage
 import skimage.io
 import skimage.color
+from functools import reduce
 
 
 def get_args(description="Test VGG network"):
@@ -84,8 +85,9 @@ def save_features_normal(filenames, features, features_file):
         f.write('\n')
 
         for idx, filename in enumerate(filenames):
-            features_ = np.append(features[0][idx], features[1][idx])
-            f.write(','.join([filename.split('/')[-1].replace('.jpg', '')] + [str(x) for x in features_]))
+            features_ = reduce(lambda acc, x: acc + x[idx].tolist(), features, [])
+            clean_filename = filename.split('/')[-1].replace('.jpg', '')
+            f.write(','.join([clean_filename] + [str(x) for x in features_]))
             f.write('\n')
 
     os.remove(lock_file)
