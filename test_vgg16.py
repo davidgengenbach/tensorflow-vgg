@@ -19,9 +19,8 @@ with tf.Session() as sess:
     images = tf.placeholder("float", [None, 224, 224, 3])
     vgg.build(images)
 
-    LAYERS_TO_EXTRACT = [vgg.fc7, vgg.fc8]
-    LAYERS_TO_EXTRACT = [vgg.fc6]
-    
+    LAYERS_TO_EXTRACT = helper.get_vgg_layers_to_be_extracted(vgg, args.extract_layers)
+
     for img_paths, imgs in helper.next_img_batch(
             count=batch_size,
             done_file=args.done_file,

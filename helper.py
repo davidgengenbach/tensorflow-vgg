@@ -17,11 +17,13 @@ from functools import reduce
 def get_args(description="Test VGG network"):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--images-list-file', default='images/files.txt')
-    parser.add_argument('--images-path', default='')
-    parser.add_argument('--done-file', default='images/done.txt')
+    parser.add_argument('--images-path', default='', help="The prefix to append to the images from `--images-list-file`.")
+    parser.add_argument('--done-file', default='images/done.txt', help="Where the processed images get appended to.")
     parser.add_argument('--features-file', default='images/features.txt')
     parser.add_argument('--batch-size', default=16, type=int)
+    parser.add_argument('--extract-layers', default="fc8", type=str, help="Comma-seperated layernames where the output should be extracted. See vgg16.py for the available layers.")
     args = parser.parse_args()
+    assert(args.extract_layers.strip() != '')
     args.features_file = get_features_file_stamped_filename(args.features_file)
     return args
 
@@ -36,6 +38,17 @@ def setup(args):
 
     if not os.path.exists(args.features_file):
         open(args.features_file, 'a').close()
+
+
+def get_vgg_layers_to_be_extracted(vgg, layer_names):
+    LAYERS_TO_EXTRACT = []
+    for layer in layer_names.split(','):
+        if hasattr(vgg, layer):
+            LAYERS_TO_EXTRACT.append(getattr(vgg, layer))
+        else:
+            print("Can't extract from layer: {}\nPlease check whether the layername is written correctly and exists in the used model.".format(layer))
+            sys.exit(1)
+    return LAYERS_TO_EXTRACT
 
 
 def next_img_batch(count=10, done_file='images/done.txt', images_file='images/files.txt', prepend_image_path=''):
